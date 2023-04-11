@@ -4,7 +4,7 @@ info:
   description: API for managing user profiles, bookings, movies, halls, and sessions.
   version: 1.0.0
 paths:
-  /user/register:
+  /users/register:
     post:
       summary: Create account
       description: Register a new user.
@@ -34,7 +34,7 @@ paths:
                     type: string
                   refresh_token:
                     type: string
-  /user/profile:
+  /users/profile:
     get:
       summary: Retrieve user profile
       description: Retrieves the profile information for the logged-in user.
@@ -61,7 +61,7 @@ paths:
                     type: string
                   user_email:
                     type: string
-  /user/profile/{userId}:
+  /users/{userId}/profile:
     put:
       summary: Update user profile info
       tags:
@@ -86,7 +86,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProfile'
-  /user/login:
+  /users/login:
     get:
       summary: Log in to an existing account
       description: Log in to an existing account with email and password.
@@ -117,7 +117,7 @@ paths:
                     type: string
                   refresh_token:
                     type: string
-  /user/password-recovery:
+  /users/{userId}/password-recovery:
     put:
       summary: Update user password
       tags:
@@ -138,7 +138,7 @@ paths:
       responses:
         '200':
           description: The user can continue to work with the system with new password.
-  /user/token/refresh:
+  /users/token/refresh:
     get:
       summary: Update expired access token
       description: Updates an expired access token.
@@ -163,7 +163,7 @@ paths:
                     type: string
                   refresh_token:
                     type: string
-  /booking/hall:
+  /booking/halls:
     post:
       summary: Create hall
       description: Create a new cinema hall.
@@ -254,7 +254,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'          
 
-  /booking/movie:
+  /booking/movies:
     post:
       summary: Create movie
       description: Create a new movie.
@@ -315,7 +315,7 @@ paths:
                           type: string
                         duration:
                           type: integer
-  /booking/movie/{movieId}:
+  /booking/movies/{movieId}:
     put:
       summary: Edit chosen movie
       tags:
@@ -360,7 +360,7 @@ paths:
           description: Internal server error
 
 
-  /booking/session:
+  /booking/sessions:
     post:
       summary: Create session
       description: Create a new cinema session.
@@ -437,7 +437,7 @@ paths:
                           type: string
                         end_time:
                           type: string
-  /booking/sessions/hall:
+  /booking/sessions/halls:
     get:
       summary: Get sessions list of chosen hall
       description: Returns a list of all movie sessions scheduled in the given cinema hall
@@ -464,7 +464,7 @@ paths:
       security:
         - managerAuth: []
 
-  /booking/sessions/movie:
+  /booking/sessions/movies:
     get:
       summary: Get sessions list of chosen movie
       description: Returns a list of all movie sessions scheduled for the given movie
@@ -493,7 +493,7 @@ paths:
         - bearerAuth: []
         - managerAuth: []
 
-  /booking/session/{session_id}:
+  /booking/sessions/{session_id}:
     get:
       summary: Retrieve session details
       description: Retrieves the details for a movie session.
@@ -570,7 +570,7 @@ paths:
                   status:
                     type: boolean
                     description: Whether the deletion was
-  /movie:
+  /movies:
     post:
       summary: Create movie
       description: Create a new movie.
@@ -770,7 +770,7 @@ paths:
           description: Unauthorized
         '404':
           description: Not Found
-  /review:
+  /reviews:
     post:
       summary: Create review
       description: Create a new review.
@@ -816,7 +816,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUpdate'
-  /review/{user_id}/{review_id}:
+  /reviews/{user_id}/{review_id}:
     delete:
       summary: Deletes an existing user review from the database
       tags:
