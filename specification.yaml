@@ -4,6 +4,7 @@ info:
   description: API for managing user profiles, bookings, movies, halls, and sessions.
   version: 1.0.0
 paths:
+
   /users/register:
     post:
       summary: Create account
@@ -34,7 +35,7 @@ paths:
                     type: string
                   refresh_token:
                     type: string
-  /users/profile:
+  /users/{userId}:                   
     get:
       summary: Retrieve user profile
       description: Retrieves the profile information for the logged-in user.
@@ -61,7 +62,7 @@ paths:
                     type: string
                   user_email:
                     type: string
-  /users/{userId}/profile:
+  
     put:
       summary: Update user profile info
       tags:
@@ -254,110 +255,110 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'          
 
-  /booking/movies:
-    post:
-      summary: Create movie
-      description: Create a new movie.
-      tags:
-        - Booking
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                description:
-                  type: string
-                duration:
-                  type: integer
-      responses:
-        '200':
-          description: The movie is created successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  movie_id:
-                    type: integer
-                  title:
-                    type: string
-                  description:
-                    type: string
-                  duration:
-                    type: integer
+  # /booking/movies:
+  #   post:
+  #     summary: Create movie
+  #     description: Create a new movie.
+  #     tags:
+  #       - Booking
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               title:
+  #                 type: string
+  #               description:
+  #                 type: string
+  #               duration:
+  #                 type: integer
+  #     responses:
+  #       '200':
+  #         description: The movie is created successfully.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 movie_id:
+  #                   type: integer
+  #                 title:
+  #                   type: string
+  #                 description:
+  #                   type: string
+  #                 duration:
+  #                   type: integer
   
-    get:
-      summary: Get all movies
-      description: Get a list of all movies.
-      tags:
-        - Booking
-      responses:
-        '200':
-          description: A list of all movies is returned.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  movies:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        movie_id:
-                          type: integer
-                        title:
-                          type: string
-                        description:
-                          type: string
-                        duration:
-                          type: integer
-  /booking/movies/{movieId}:
-    put:
-      summary: Edit chosen movie
-      tags:
-        - Booking
-      parameters:
-        - in: path
-          name: movieId
-          description: ID of the movie to edit
-          required: true
-          schema:
-            type: integer
-        - in: body
-          name: body
-          description: Request body containing details of the movie booking to update
-          required: true
-          schema:
-            $ref: '#/components/schemas/MovieBookingUpdate'
-      responses:
-        '200':
-          description: Details of the updated movie booking
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MovieBooking'
-    delete:
-      summary: Delete a movie
-      tags:
-        - Booking
-      parameters:
-        - in: path
-          name: movieId
-          description: ID of the movie to delete
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Movie deleted successfully
-        '404':
-          description: Movie not found
-        '500':
-          description: Internal server error
+  #   get:
+  #     summary: Get all movies
+  #     description: Get a list of all movies.
+  #     tags:
+  #       - Booking
+  #     responses:
+  #       '200':
+  #         description: A list of all movies is returned.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 movies:
+  #                   type: array
+  #                   items:
+  #                     type: object
+  #                     properties:
+  #                       movie_id:
+  #                         type: integer
+  #                       title:
+  #                         type: string
+  #                       description:
+  #                         type: string
+  #                       duration:
+  #                         type: integer
+  # /booking/movies/{movieId}:
+  #   put:
+  #     summary: Edit chosen movie
+  #     tags:
+  #       - Booking
+  #     parameters:
+  #       - in: path
+  #         name: movieId
+  #         description: ID of the movie to edit
+  #         required: true
+  #         schema:
+  #           type: integer
+  #       - in: body
+  #         name: body
+  #         description: Request body containing details of the movie booking to update
+  #         required: true
+  #         schema:
+  #           $ref: '#/components/schemas/MovieBookingUpdate'
+  #     responses:
+  #       '200':
+  #         description: Details of the updated movie booking
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/MovieBooking'
+  #   delete:
+  #     summary: Delete a movie
+  #     tags:
+  #       - Booking
+  #     parameters:
+  #       - in: path
+  #         name: movieId
+  #         description: ID of the movie to delete
+  #         required: true
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       '204':
+  #         description: Movie deleted successfully
+  #       '404':
+  #         description: Movie not found
+  #       '500':
+  #         description: Internal server error
 
 
   /booking/sessions:
@@ -437,63 +438,8 @@ paths:
                           type: string
                         end_time:
                           type: string
-  /booking/sessions/halls:
-    get:
-      summary: Get sessions list of chosen hall
-      description: Returns a list of all movie sessions scheduled in the given cinema hall
-      tags:
-        - Booking
-      parameters:
-        - in: query
-          name: hall_id
-          description: The ID of the cinema hall to retrieve sessions for
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MovieSession'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - managerAuth: []
 
-  /booking/sessions/movies:
-    get:
-      summary: Get sessions list of chosen movie
-      description: Returns a list of all movie sessions scheduled for the given movie
-      tags:
-        - Booking
-      parameters:
-        - in: query
-          name: movie_id
-          description: The ID of the movie to retrieve sessions for
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MovieSession'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - basicAuth: []
-        - bearerAuth: []
-        - managerAuth: []
-
-  /booking/sessions/{session_id}:
+  /booking/sessions/{sessionId}:
     get:
       summary: Retrieve session details
       description: Retrieves the details for a movie session.
@@ -523,7 +469,7 @@ paths:
                   start_time:
                     type: string
                     format: date-time
-  /booking/sessions/{sessionId}:
+  
     put:
       summary: Edit chosen session
       tags:
@@ -570,7 +516,7 @@ paths:
                   status:
                     type: boolean
                     description: Whether the deletion was
-  /movies:
+  /movies/movie:
     post:
       summary: Create movie
       description: Create a new movie.
@@ -630,7 +576,7 @@ paths:
                       format: date
                     image_url:
                       type: string
-  /movies/{id}:
+  /movies/{movieId}:
     get:
       summary: Retrieve movie details
       description: Retrieves the details for a movie.
@@ -736,7 +682,7 @@ paths:
         '403':
           description: The user is not authorized to perform this action.
       paths:
-  /movies/{movie_id}:
+  
     delete:
       summary: Deletes an existing movie from the database
       tags:
@@ -770,7 +716,7 @@ paths:
           description: Unauthorized
         '404':
           description: Not Found
-  /reviews:
+  /reviews/review:
     post:
       summary: Create review
       description: Create a new review.
@@ -816,7 +762,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserUpdate'
-  /reviews/{user_id}/{review_id}:
+                
+  /users/{userId}/reviews/{reviewId}:
+    put:
+      summary: Edit user review
+      tags:
+        - Review
+      parameters:
+        - in: path
+          name: reviewId
+          description: ID of the review to edit
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: movieId
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - in: body
+          name: body
+          description: Request body containing details of the review to update
+          required: true
+          schema:
+            $ref: '#/components/schemas/Review'
+      responses:
+        '200':
+          description: Details of the updated review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+
     delete:
       summary: Deletes an existing user review from the database
       tags:
@@ -856,36 +834,7 @@ paths:
           description: Unauthorized
         '404':
           description: Not Found
-    put:
-      summary: Edit user review
-      tags:
-        - Review
-      parameters:
-        - in: path
-          name: reviewId
-          description: ID of the review to edit
-          required: true
-          schema:
-            type: integer
-        - in: path
-          name: movieId
-          description: ID of the user
-          required: true
-          schema:
-            type: integer
-        - in: body
-          name: body
-          description: Request body containing details of the review to update
-          required: true
-          schema:
-            $ref: '#/components/schemas/Review'
-      responses:
-        '200':
-          description: Details of the updated review
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Review'
+    
 
 components:
   schemas:
