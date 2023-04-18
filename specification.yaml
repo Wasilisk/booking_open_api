@@ -10,7 +10,7 @@ paths:
       summary: Create account
       description: Register a new user.
       tags:
-        - User profile
+        - User
       requestBody:
         content:
           application/json:
@@ -40,10 +40,10 @@ paths:
       summary: Retrieve user profile
       description: Retrieves the profile information for the logged-in user.
       tags:
-        - User profile
+        - User
       parameters:
-        - in: query
-          name: user_id
+        - in: path
+          name: userId
           schema:
             type: integer
           required: true
@@ -66,7 +66,7 @@ paths:
     put:
       summary: Update user profile info
       tags:
-        - User profile
+        - User
       parameters:
         - in: path
           name: userId
@@ -74,7 +74,7 @@ paths:
           required: true
           schema:
             type: integer
-        - in: body
+        - in: query
           name: body
           description: Request body containing details of the user profile to update
           required: true
@@ -92,7 +92,7 @@ paths:
       summary: Log in to an existing account
       description: Log in to an existing account with email and password.
       tags:
-        - User profile
+        - User
       parameters:
         - in: query
           name: email
@@ -122,7 +122,7 @@ paths:
     put:
       summary: Update user password
       tags:
-        - User profile
+        - User
       parameters:
         - in: path
           name: userId
@@ -130,7 +130,7 @@ paths:
           required: true
           schema:
             type: integer
-        - in: body
+        - in: query
           name: body
           description: Request body containing details about the new password
           required: true
@@ -144,7 +144,7 @@ paths:
       summary: Update expired access token
       description: Updates an expired access token.
       tags:
-        - User profile
+        - User
       parameters:
         - in: query
           name: refresh_token
@@ -164,7 +164,7 @@ paths:
                     type: string
                   refresh_token:
                     type: string
-  /booking/halls:
+  /halls:
     post:
       summary: Create hall
       description: Create a new cinema hall.
@@ -212,7 +212,7 @@ paths:
                           type: integer
                         hall_name:
                           type: string
-  /booking/halls/{hallId}:
+  /halls/{hallId}:
     put:
       summary: Update a chosen hall
       tags:
@@ -224,7 +224,7 @@ paths:
           required: true
           schema:
             type: integer
-        - in: body
+        - in: query
           name: body
           description: Request body containing updated details of the hall
           required: true
@@ -361,7 +361,7 @@ paths:
   #         description: Internal server error
 
 
-  /booking/sessions:
+  /sessions:
     post:
       summary: Create session
       description: Create a new cinema session.
@@ -439,7 +439,7 @@ paths:
                         end_time:
                           type: string
 
-  /booking/sessions/{sessionId}:
+  /sessions/{sessionId}:
     get:
       summary: Retrieve session details
       description: Retrieves the details for a movie session.
@@ -447,7 +447,7 @@ paths:
         - Booking
       parameters:
         - in: path
-          name: session_id
+          name: sessionId
           schema:
             type: integer
           required: true
@@ -481,7 +481,7 @@ paths:
           required: true
           schema:
             type: integer
-        - in: body
+        - in: query
           name: body
           description: Request body containing details of the session to update
           required: true
@@ -516,7 +516,7 @@ paths:
                   status:
                     type: boolean
                     description: Whether the deletion was
-  /movies/movie:
+  /movies:
     post:
       summary: Create movie
       description: Create a new movie.
@@ -584,7 +584,7 @@ paths:
         - Movie
       parameters:
         - in: path
-          name: id
+          name: movieId
           schema:
             type: integer
           required: true
@@ -621,7 +621,7 @@ paths:
         - Movie
       parameters:
         - in: path
-          name: movie_id
+          name: movieId
           required: true
           schema:
             type: integer
@@ -681,7 +681,6 @@ paths:
           description: The movie with the specified ID does not exist.
         '403':
           description: The user is not authorized to perform this action.
-      paths:
   
     delete:
       summary: Deletes an existing movie from the database
@@ -689,13 +688,11 @@ paths:
         - Movie
       parameters:
         - in: path
-          name: movie_id
+          name: movieId
           schema:
             type: integer
           description: The ID of the movie to delete
           required: true
-      security:
-        - bearerAuth: []
       responses:
         '200':
           description: OK
@@ -716,7 +713,7 @@ paths:
           description: Unauthorized
         '404':
           description: Not Found
-  /reviews/review:
+  /reviews:
     post:
       summary: Create review
       description: Create a new review.
@@ -750,20 +747,27 @@ paths:
                     type: integer
                   comment:
                     type: string
+
     get:
       summary: Get all reviews
       description: Get a list of all reviews.
       tags:
         - Review
+      parameters:
+        - in: query
+          name: userId
+          description: ID of the user
+          schema:
+            type: integer
       responses:
         '200':
           description: List of all reviews is successfully retrieved.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserUpdate'
+                $ref: '#/components/schemas/Review'
                 
-  /users/{userId}/reviews/{reviewId}:
+  /reviews/{reviewId}:
     put:
       summary: Edit user review
       tags:
@@ -775,13 +779,7 @@ paths:
           required: true
           schema:
             type: integer
-        - in: path
-          name: movieId
-          description: ID of the user
-          required: true
-          schema:
-            type: integer
-        - in: body
+        - in: query
           name: body
           description: Request body containing details of the review to update
           required: true
@@ -801,19 +799,11 @@ paths:
         - Review
       parameters:
         - in: path
-          name: movieId
+          name: reviewId
           schema:
             type: integer
           description: The ID of the user review to delete
           required: true
-        - in: path
-          name: user_id
-          schema:
-            type: integer
-          description: The ID of the user
-          required: true
-      security:
-        - bearerAuth: []
       responses:
         '200':
           description: OK
@@ -834,7 +824,6 @@ paths:
           description: Unauthorized
         '404':
           description: Not Found
-    
 
 components:
   schemas:
@@ -1001,18 +990,3 @@ components:
             properties:
               message:
                 type: string
-  
-
-  securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-    managerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Token required for manager-level access
