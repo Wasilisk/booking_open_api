@@ -255,112 +255,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'          
 
-  # /booking/movies:
-  #   post:
-  #     summary: Create movie
-  #     description: Create a new movie.
-  #     tags:
-  #       - Booking
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               title:
-  #                 type: string
-  #               description:
-  #                 type: string
-  #               duration:
-  #                 type: integer
-  #     responses:
-  #       '200':
-  #         description: The movie is created successfully.
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 movie_id:
-  #                   type: integer
-  #                 title:
-  #                   type: string
-  #                 description:
-  #                   type: string
-  #                 duration:
-  #                   type: integer
-  
-  #   get:
-  #     summary: Get all movies
-  #     description: Get a list of all movies.
-  #     tags:
-  #       - Booking
-  #     responses:
-  #       '200':
-  #         description: A list of all movies is returned.
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 movies:
-  #                   type: array
-  #                   items:
-  #                     type: object
-  #                     properties:
-  #                       movie_id:
-  #                         type: integer
-  #                       title:
-  #                         type: string
-  #                       description:
-  #                         type: string
-  #                       duration:
-  #                         type: integer
-  # /booking/movies/{movieId}:
-  #   put:
-  #     summary: Edit chosen movie
-  #     tags:
-  #       - Booking
-  #     parameters:
-  #       - in: path
-  #         name: movieId
-  #         description: ID of the movie to edit
-  #         required: true
-  #         schema:
-  #           type: integer
-  #       - in: body
-  #         name: body
-  #         description: Request body containing details of the movie booking to update
-  #         required: true
-  #         schema:
-  #           $ref: '#/components/schemas/MovieBookingUpdate'
-  #     responses:
-  #       '200':
-  #         description: Details of the updated movie booking
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/MovieBooking'
-  #   delete:
-  #     summary: Delete a movie
-  #     tags:
-  #       - Booking
-  #     parameters:
-  #       - in: path
-  #         name: movieId
-  #         description: ID of the movie to delete
-  #         required: true
-  #         schema:
-  #           type: integer
-  #     responses:
-  #       '204':
-  #         description: Movie deleted successfully
-  #       '404':
-  #         description: Movie not found
-  #       '500':
-  #         description: Internal server error
-
-
   /sessions:
     post:
       summary: Create session
@@ -551,6 +445,12 @@ paths:
       description: Get a list of all movies.
       tags:
         - Movie
+      parameters:
+        - in: query
+          name: genre_id
+          description: ID of the genre
+          schema:
+            type: integer
       responses:
         '200':
           description: List of all movies is successfully retrieved.
@@ -748,6 +648,7 @@ paths:
                   comment:
                     type: string
 
+        
     get:
       summary: Get all reviews
       description: Get a list of all reviews.
@@ -755,10 +656,20 @@ paths:
         - Review
       parameters:
         - in: query
-          name: userId
+          name: review_id
+          description: ID of the review
+          schema:
+            type: integer
+        - in: query
+          name: user_id
           description: ID of the user
           schema:
             type: integer
+        - in: query
+          name: movie_id
+          schema:
+            type: integer
+          description: Optional parameter to filter reviews by movie.
       responses:
         '200':
           description: List of all reviews is successfully retrieved.
@@ -825,8 +736,432 @@ paths:
         '404':
           description: Not Found
 
+  /genres:
+    post:
+      summary: Create genre
+      description: Create a new genre.
+      tags:
+        - Genre
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the genre.
+              required:
+                - name
+      responses:
+        '200':
+          description: The genre is created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+    get:
+      summary: Get all genres
+      description: Get a list of all genres.
+      tags:
+        - Genre
+      responses:
+        '200':
+          description: List of all genres is successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+  /genres/{genreId}:
+    put:
+      summary: Edit genre
+      tags:
+        - Genre
+      parameters:
+        - in: path
+          name: genreId
+          description: ID of the genre to edit
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: body
+          description: Request body containing details of the genre to update
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The name of the genre.
+      responses:
+        '200':
+          description: Details of the updated genre
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+    delete:
+      summary: Deletes an existing genre from the database
+      tags:
+        - Genre
+      parameters:
+        - in: path
+          name: genreId
+          schema:
+            type: integer
+          description: The ID of the genre to delete
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Whether the genre was deleted successfully or not
+                  message:
+                    type: string
+                    description: A message indicating the result of the operation
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+  /discounts:
+    post:
+      summary: Create discount
+      description: Create a new discount.
+      tags:
+        - Discount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: The discount code.
+                percentage:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 100
+                  description: The discount percentage.
+                expires_at:
+                  type: string
+                  format: date-time
+                  description: The date and time the discount expires.
+              required:
+                - code
+                - percentage
+      responses:
+        '200':
+          description: The discount is created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  code:
+                    type: string
+                  percentage:
+                    type: number
+                  expires_at:
+                    type: string
+    get:
+      summary: Get all discounts
+      description: Get a list of all discounts.
+      tags:
+        - Discount
+      parameters:
+      - in: query
+        name: start_date
+        schema:
+          type: integer
+        description: The Date discounts start being active
+      - in: query
+        name: end_date
+        schema:
+          type: integer
+        description: The Date discounts finish being active
+      - in: query
+        name: movie_id
+        schema:
+          type: integer
+        description: The ID of the movie to get discounts
+      responses:
+        '200':
+          description: List of all discounts is successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    code:
+                      type: string
+                    percentage:
+                      type: number
+                    expires_at:
+                      type: string
+  /discounts/{discountId}:
+    put:
+      summary: Edit discount
+      tags:
+        - Discount
+      parameters:
+        - in: path
+          name: discountId
+          description: ID of the discount to edit
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: body
+          description: Request body containing details of the discount to update
+          required: true
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: The discount code.
+              percentage:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 100
+                description: The discount percentage.
+              expires_at:
+                type: string
+                format: date-time
+                description: The date and time the discount expires.
+      responses:
+        '200':
+          description: Details of the updated discount
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  code:
+                    type: string
+                  percentage:
+                    type: number
+                  expires_at:
+                    type: string
+    delete:
+      summary: Deletes an existing discount from the database
+      tags:
+        - Discount
+      parameters:
+        - in: path
+          name: discountId
+          schema:
+            type: integer
+          description: The ID of the discount to delete
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Whether the discount was deleted successfully or not
+                  message:
+                    type: string
+                    description: A message indicating the result of the operation
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+  /seat:
+    post:
+      summary: Create a seat
+      description: Create a new seat for a specific theater and movie showing.
+      tags:
+        - Seat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                theater_id:
+                  type: integer
+                  description: ID of the theater where the seat is located
+                movie_showing_id:
+                  type: integer
+                  description: ID of the movie showing for which the seat is being created
+                row_number:
+                  type: integer
+                  description: The row number of the seat
+                seat_number:
+                  type: integer
+                  description: The number of the seat in the row
+      responses:
+        '201':
+          description: The seat is created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seat'
+            
+    get:
+      summary: Get all seats
+      description: Get a list of all seats.
+      tags:
+        - Seat
+      responses:
+        '200':
+          description: List of all seats is successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Seat'
+  
+  /seat/{seatId}:
+    get:
+      summary: Get a seat by ID
+      description: Get details of a specific seat by its ID.
+      tags:
+        - Seat
+      parameters:
+        - in: path
+          name: seatId
+          schema:
+            type: integer
+          description: The ID of the seat to retrieve
+          required: true
+      responses:
+        '200':
+          description: The details of the seat with the specified ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seat'
+            
+    put:
+      summary: Update a seat
+      description: Update details of a specific seat.
+      tags:
+        - Seat
+      parameters:
+        - in: path
+          name: seatId
+          schema:
+            type: integer
+          description: The ID of the seat to update
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                theater_id:
+                  type: integer
+                  description: ID of the theater where the seat is located
+                movie_showing_id:
+                  type: integer
+                  description: ID of the movie showing for which the seat is being updated
+                row_number:
+                  type: integer
+                  description: The updated row number of the seat
+                seat_number:
+                  type: integer
+                  description: The updated number of the seat in the row
+      responses:
+        '200':
+          description: The updated details of the seat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seat'
+
+    delete:
+      summary: Delete a seat
+      description: Delete a specific seat by its ID.
+      tags:
+        - Seat
+      parameters:
+        - in: path
+          name: seatId
+          schema:
+            type: integer
+          description: The ID of the seat to delete
+          required: true
+      responses:
+        '200':
+          description: The seat is deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Whether the seat was deleted successfully or not
+                  message:
+                    type: string
+                    description: A message indicating the result of the operation
+
 components:
   schemas:
+    Seat:
+      type: object
+      properties:
+        id:
+          type: integer
+        row:
+          type: string
+        number:
+          type: integer
+        hall_id:
+          type: integer
+      required:
+        - id
+        - row
+        - number
+        - hall_id
     UserProfile:
       type: object
       properties:
@@ -967,6 +1302,7 @@ components:
         - session_id
         - user_id
         - seats
+        - 
     
     Review:
       type: object
