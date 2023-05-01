@@ -4,7 +4,6 @@ info:
   description: API for managing user profiles, bookings, movies, halls, and sessions.
   version: 1.0.0
 paths:
-
   /users/register:
     post:
       summary: Create account
@@ -35,7 +34,7 @@ paths:
                     type: string
                   refresh_token:
                     type: string
-  /users/{userId}:                   
+  /users/{userId}:
     get:
       summary: Retrieve user profile
       description: Retrieves the profile information for the logged-in user.
@@ -62,18 +61,14 @@ paths:
                     type: string
                   user_email:
                     type: string
-  
+  /users:
     put:
+      security:
+        - bearerAuth: []
       summary: Update user profile info
       tags:
         - User
       parameters:
-        - in: path
-          name: userId
-          description: ID of the user to edit
-          required: true
-          schema:
-            type: integer
         - in: query
           name: body
           description: Request body containing details of the user profile to update
@@ -118,18 +113,35 @@ paths:
                     type: string
                   refresh_token:
                     type: string
-  /users/{userId}/password-recovery:
+  /users/password-recovery:
+    post:
+      summary: Send password recovery confirmation email
+      tags:
+        - User
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+          required: true
+          description: Email of registered user.
+      responses:
+        '200':
+          description: The email sent successfully.
+        '404':
+          description: User with such email not found.
+  /users/password-recovery/{verificationCode}:
     put:
       summary: Update user password
       tags:
         - User
       parameters:
         - in: path
-          name: userId
-          description: ID of the user
-          required: true
+          name: verificationCode
           schema:
-            type: integer
+            type: string
+          required: true
+          description: Unique password recovery verification code.
         - in: query
           name: body
           description: Request body containing details about the new password
@@ -139,6 +151,8 @@ paths:
       responses:
         '200':
           description: The user can continue to work with the system with new password.
+        '400':
+          description: Recovery request is invalid.
   /users/token/refresh:
     get:
       summary: Update expired access token
@@ -166,6 +180,8 @@ paths:
                     type: string
   /halls:
     post:
+      security:
+        - bearerAuth: []
       summary: Create hall
       description: Create a new cinema hall.
       tags:
@@ -190,6 +206,10 @@ paths:
                     type: integer
                   hall_name:
                     type: string
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     get:
       summary: Get all halls
       description: Get a list of all cinema halls.
@@ -213,7 +233,48 @@ paths:
                         hall_name:
                           type: string
   /halls/{hallId}:
+    get:
+      summary: Retrieve hall details
+      description: Retrieves the details for a hall.
+      tags:
+       - Booking
+      parameters:
+        - in: path
+          name: hallId
+          schema:
+            type: integer
+          required: true
+          description: ID of the hall to retrieve.
+
+
+      responses:
+        '200':
+          description: The hall details are successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  hall:
+                    type: string
+                  duration:
+                    type: integer
+                  release_date:
+                    type: string
+                    format: date
+                  image_url:
+                    type: string
+        '404':
+          description: Discount not found 
     put:
+      security:
+        - bearerAuth: []
       summary: Update a chosen hall
       tags:
         - Booking
@@ -237,8 +298,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Hall'
-      
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     delete:
+      security:
+        - bearerAuth: []
       summary: Delete chosen hall
       tags:
         - Booking
@@ -252,11 +318,16 @@ paths:
       responses:
         '204':
           description: The hall has been successfully deleted
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
         '404':
-          $ref: '#/components/responses/NotFound'          
-
+          $ref: '#/components/responses/NotFound'
   /sessions:
     post:
+      security:
+        - bearerAuth: []
       summary: Create session
       description: Create a new cinema session.
       tags:
@@ -293,6 +364,10 @@ paths:
                     type: string
                   end_time:
                     type: string
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     get:
       summary: Get all sessions
       description: Get a list of all cinema sessions.
@@ -332,7 +407,6 @@ paths:
                           type: string
                         end_time:
                           type: string
-
   /sessions/{sessionId}:
     get:
       summary: Retrieve session details
@@ -363,8 +437,9 @@ paths:
                   start_time:
                     type: string
                     format: date-time
-  
     put:
+      security:
+        - bearerAuth: []
       summary: Edit chosen session
       tags:
         - Booking
@@ -388,7 +463,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MovieSession'
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     delete:
+      security:
+        - bearerAuth: []
       summary: Delete chosen session
       tags:
         - Booking
@@ -410,8 +491,14 @@ paths:
                   status:
                     type: boolean
                     description: Whether the deletion was
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
   /movies:
     post:
+      security:
+        - bearerAuth: []
       summary: Create movie
       description: Create a new movie.
       tags:
@@ -440,6 +527,10 @@ paths:
                     type: string
                   duration:
                     type: integer
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     get:
       summary: Get all movies
       description: Get a list of all movies.
@@ -449,6 +540,16 @@ paths:
         - in: query
           name: genre_id
           description: ID of the genre
+          schema:
+            type: integer
+        - in: query
+          name: name
+          description: name
+          schema:
+            type: string
+        - in: query
+          name: duration
+          description: Max duration of movie
           schema:
             type: integer
       responses:
@@ -515,6 +616,8 @@ paths:
         '404':
           description: Movie not found
     put:
+      security:
+        - bearerAuth: []
       summary: Update movie
       description: Updates an existing movie in the system.
       tags:
@@ -577,12 +680,15 @@ paths:
                   movie_image_url:
                     type: string
                     description: Updated URL of the movie's image.
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
         '404':
           description: The movie with the specified ID does not exist.
-        '403':
-          description: The user is not authorized to perform this action.
-  
     delete:
+      security:
+        - bearerAuth: []
       summary: Deletes an existing movie from the database
       tags:
         - Movie
@@ -610,15 +716,19 @@ paths:
         '400':
           description: Bad Request
         '401':
-          description: Unauthorized
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
         '404':
           description: Not Found
   /reviews:
     post:
+      security:
+        - bearerAuth: []
       summary: Create review
       description: Create a new review.
       tags:
-        - Review
+        - Movie
       requestBody:
         content:
           application/json:
@@ -647,13 +757,15 @@ paths:
                     type: integer
                   comment:
                     type: string
-
-        
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     get:
       summary: Get all reviews
       description: Get a list of all reviews.
       tags:
-        - Review
+        - Movie
       parameters:
         - in: query
           name: review_id
@@ -677,12 +789,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
-                
   /reviews/{reviewId}:
-    put:
-      summary: Edit user review
+    get:
+      summary: Retrieve review details
+      description: Retrieves the details for a review.
       tags:
         - Review
+      parameters:
+        - in: path
+          name: reviewId
+          schema:
+            type: integer
+          required: true
+          description: ID of the review to retrieve.
+
+
+      responses:
+        '200':
+          description: The review details are successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  review:
+                    type: string
+        '404':
+          description: Review not found
+    put:
+      security:
+        - bearerAuth: []
+      summary: Edit user review
+      tags:
+        - Movie
       parameters:
         - in: path
           name: reviewId
@@ -703,11 +844,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
-
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     delete:
+      security:
+        - bearerAuth: []
       summary: Deletes an existing user review from the database
       tags:
-        - Review
+        - Movie
       parameters:
         - in: path
           name: reviewId
@@ -732,16 +878,19 @@ paths:
         '400':
           description: Bad Request
         '401':
-          description: Unauthorized
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
         '404':
           description: Not Found
-
   /genres:
     post:
+      security:
+        - bearerAuth: []
       summary: Create genre
       description: Create a new genre.
       tags:
-        - Genre
+        - Movie
       requestBody:
         content:
           application/json:
@@ -765,11 +914,15 @@ paths:
                     type: integer
                   name:
                     type: string
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     get:
       summary: Get all genres
       description: Get a list of all genres.
       tags:
-        - Genre
+        - Movie
       responses:
         '200':
           description: List of all genres is successfully retrieved.
@@ -785,10 +938,51 @@ paths:
                     name:
                       type: string
   /genres/{genreId}:
+    get:
+      summary: Retrieve genre details
+      description: Retrieves the details for a genre.
+      tags:
+       - Genre
+      parameters:
+        - in: path
+          name: genreId
+          schema:
+            type: integer
+          required: true
+          description: ID of the genre to retrieve.
+
+
+      responses:
+        '200':
+          description: The genre details are successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  genre:
+                    type: string
+                  duration:
+                    type: integer
+                  release_date:
+                    type: string
+                    format: date
+                  image_url:
+                    type: string
+        '404':
+          description: Genre not found
     put:
+      security:
+        - bearerAuth: []
       summary: Edit genre
       tags:
-        - Genre
+        - Movie
       parameters:
         - in: path
           name: genreId
@@ -818,10 +1012,16 @@ paths:
                     type: integer
                   name:
                     type: string
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     delete:
+      security:
+        - bearerAuth: []
       summary: Deletes an existing genre from the database
       tags:
-        - Genre
+        - Movie
       parameters:
         - in: path
           name: genreId
@@ -846,15 +1046,19 @@ paths:
         '400':
           description: Bad Request
         '401':
-          description: Unauthorized
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
         '404':
           description: Not Found
   /discounts:
     post:
+      security:
+        - bearerAuth: []
       summary: Create discount
       description: Create a new discount.
       tags:
-        - Discount
+        - Booking
       requestBody:
         content:
           application/json:
@@ -893,11 +1097,15 @@ paths:
                     type: number
                   expires_at:
                     type: string
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     get:
       summary: Get all discounts
       description: Get a list of all discounts.
       tags:
-        - Discount
+        - Booking
       parameters:
       - in: query
         name: start_date
@@ -933,10 +1141,52 @@ paths:
                     expires_at:
                       type: string
   /discounts/{discountId}:
+    get:
+      summary: Retrieve discount details
+      description: Retrieves the details for a discount.
+      tags:
+       - Discount
+      parameters:
+        - in: path
+          name: discountId
+          schema:
+            type: integer
+          required: true
+          description: ID of the discount to retrieve.
+
+
+      responses:
+        '200':
+          description: The discount details are successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  discount:
+                    type: integer
+                  duration:
+                    type: integer
+                  release_date:
+                    type: string
+                    format: date
+                  image_url:
+                    type: string
+        '404':
+          description: Discount not found 
+
     put:
+      security:
+        - bearerAuth: []
       summary: Edit discount
       tags:
-        - Discount
+        - Booking
       parameters:
         - in: path
           name: discountId
@@ -980,10 +1230,16 @@ paths:
                     type: number
                   expires_at:
                     type: string
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     delete:
+      security:
+        - bearerAuth: []
       summary: Deletes an existing discount from the database
       tags:
-        - Discount
+        - Booking
       parameters:
         - in: path
           name: discountId
@@ -1008,15 +1264,19 @@ paths:
         '400':
           description: Bad Request
         '401':
-          description: Unauthorized
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
         '404':
           description: Not Found
   /seat:
     post:
+      security:
+        - bearerAuth: []
       summary: Create a seat
       description: Create a new seat for a specific theater and movie showing.
       tags:
-        - Seat
+        - Booking
       requestBody:
         content:
           application/json:
@@ -1042,12 +1302,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Seat'
-            
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     get:
       summary: Get all seats
       description: Get a list of all seats.
       tags:
-        - Seat
+        - Booking
       responses:
         '200':
           description: List of all seats is successfully retrieved.
@@ -1057,13 +1320,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Seat'
-  
   /seat/{seatId}:
     get:
       summary: Get a seat by ID
       description: Get details of a specific seat by its ID.
       tags:
-        - Seat
+        - Booking
       parameters:
         - in: path
           name: seatId
@@ -1078,12 +1340,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Seat'
-            
     put:
+      security:
+        - bearerAuth: []
       summary: Update a seat
       description: Update details of a specific seat.
       tags:
-        - Seat
+        - Booking
       parameters:
         - in: path
           name: seatId
@@ -1116,12 +1379,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Seat'
-
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
     delete:
+      security:
+        - bearerAuth: []
       summary: Delete a seat
       description: Delete a specific seat by its ID.
       tags:
-        - Seat
+        - Booking
       parameters:
         - in: path
           name: seatId
@@ -1143,8 +1411,17 @@ paths:
                   message:
                     type: string
                     description: A message indicating the result of the operation
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
   schemas:
     Seat:
       type: object
@@ -1326,3 +1603,7 @@ components:
             properties:
               message:
                 type: string
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    AccessDeniedError:
+      description: You have no permission
