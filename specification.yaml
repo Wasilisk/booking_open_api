@@ -192,7 +192,7 @@ paths:
             schema:
               type: object
               properties:
-                hall_name:
+                name:
                   type: string
       responses:
         '200':
@@ -200,12 +200,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  hall_id:
-                    type: integer
-                  hall_name:
-                    type: string
+                $ref: '#/components/schemas/Hall'
         '401':
           description: Access token is missing or invalid
         '403':
@@ -226,12 +221,7 @@ paths:
                   halls:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        hall_id:
-                          type: integer
-                        hall_name:
-                          type: string
+                      $ref: '#/components/schemas/Hall'
   /halls/{hallId}:
     get:
       summary: Retrieve hall details
@@ -245,33 +235,15 @@ paths:
             type: integer
           required: true
           description: ID of the hall to retrieve.
-
-
       responses:
         '200':
           description: The hall details are successfully retrieved.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  title:
-                    type: string
-                  description:
-                    type: string
-                  hall:
-                    type: string
-                  duration:
-                    type: integer
-                  release_date:
-                    type: string
-                    format: date
-                  image_url:
-                    type: string
+                $ref: '#/components/schemas/Hall'
         '404':
-          description: Discount not found 
+          description: Hall not found 
     put:
       security:
         - bearerAuth: []
@@ -395,18 +367,7 @@ paths:
                   sessions:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        session_id:
-                          type: integer
-                        hall_id:
-                          type: integer
-                        movie_id:
-                          type: integer
-                        start_time:
-                          type: string
-                        end_time:
-                          type: string
+                      $ref: '#/components/schemas/MovieSession'
   /sessions/{sessionId}:
     get:
       summary: Retrieve session details
@@ -426,17 +387,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  session_id:
-                    type: integer
-                  hall_id:
-                    type: integer
-                  movie_id:
-                    type: integer
-                  start_time:
-                    type: string
-                    format: date-time
+                $ref: '#/components/schemas/MovieSession'
     put:
       security:
         - bearerAuth: []
@@ -482,15 +433,246 @@ paths:
             type: integer
       responses:
         '200':
-          description: Confirmation of deletion
+          description: Session is deleted successfully
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
+  /discounts:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Create discount
+      description: Create a new discount.
+      tags:
+        - Booking
+      requestBody:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    description: Whether the deletion was
+                $ref: '#/components/schemas/DiscountCreate'
+      responses:
+        '200':
+          description: The discount is created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
+    get:
+      summary: Get all discounts
+      description: Get a list of all discounts.
+      tags:
+        - Booking
+      parameters:
+      - in: query
+        name: start_date
+        schema:
+          type: integer
+        description: The Date discounts start being active
+      - in: query
+        name: end_date
+        schema:
+          type: integer
+        description: The Date discounts finish being active
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+        description: Discount status
+      responses:
+        '200':
+          description: List of all discounts is successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Discount'
+  /discounts/{discountId}:
+    get:
+      summary: Retrieve discount details
+      description: Retrieves the details for a discount.
+      tags:
+       - Booking
+      parameters:
+        - in: path
+          name: discountId
+          schema:
+            type: integer
+          required: true
+          description: ID of the discount to retrieve.
+      responses:
+        '200':
+          description: The discount details are successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '404':
+          description: Discount not found 
+
+    put:
+      security:
+        - bearerAuth: []
+      summary: Edit discount
+      tags:
+        - Booking
+      parameters:
+        - in: path
+          name: discountId
+          description: ID of the discount to edit
+          required: true
+          schema:
+            type: integer
+      requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountCreate'
+      responses:
+        '200':
+          description: Details of the updated discount
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
+    delete:
+      security:
+        - bearerAuth: []
+      summary: Deletes an existing discount from the database
+      tags:
+        - Booking
+      parameters:
+        - in: path
+          name: discountId
+          schema:
+            type: integer
+          description: The ID of the discount to delete
+          required: true
+      responses:
+        '200':
+          description: Discount is deleted successfully
+        '400':
+          description: Bad Request
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
+        '404':
+          description: Not Found
+  /seat:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Create a seat
+      description: Create a new seat for a specific theater and movie showing.
+      tags:
+        - Booking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeatCreate'
+      responses:
+        '201':
+          description: The seat is created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seat'
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
+    get:
+      summary: Get all seats
+      description: Get a list of all seats.
+      tags:
+        - Booking
+      responses:
+        '200':
+          description: List of all seats is successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Seat'
+  /seat/{seatId}:
+    get:
+      summary: Get a seat by ID
+      description: Get details of a specific seat by its ID.
+      tags:
+        - Booking
+      parameters:
+        - in: path
+          name: seatId
+          schema:
+            type: integer
+          description: The ID of the seat to retrieve
+          required: true
+      responses:
+        '200':
+          description: The details of the seat with the specified ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seat'
+    put:
+      security:
+        - bearerAuth: []
+      summary: Update a seat
+      description: Update details of a specific seat.
+      tags:
+        - Booking
+      parameters:
+        - in: path
+          name: seatId
+          schema:
+            type: integer
+          description: The ID of the seat to update
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeatCreate'
+      responses:
+        '200':
+          description: The updated details of the seat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seat'
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
+    delete:
+      security:
+        - bearerAuth: []
+      summary: Delete a seat
+      description: Delete a specific seat by its ID.
+      tags:
+        - Booking
+      parameters:
+        - in: path
+          name: seatId
+          schema:
+            type: integer
+          description: The ID of the seat to delete
+          required: true
+      responses:
+        '200':
+          description: The seat is deleted successfully
         '401':
           description: Access token is missing or invalid
         '403':
@@ -507,26 +689,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                duration:
-                  type: integer
+              $ref: '#/components/schemas/MovieCreate'
       responses:
         '200':
           description: The movie is created successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  movie_id:
-                    type: integer
-                  title:
-                    type: string
-                  duration:
-                    type: integer
+                $ref: '#/components/schemas/Movie'
         '401':
           description: Access token is missing or invalid
         '403':
@@ -560,23 +730,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    title:
-                      type: string
-                    description:
-                      type: string
-                    genre:
-                      type: string
-                    duration:
-                      type: integer
-                    release_date:
-                      type: string
-                      format: date
-                    image_url:
-                      type: string
+                  $ref: '#/components/schemas/Movie'
   /movies/{movieId}:
     get:
       summary: Retrieve movie details
@@ -596,23 +750,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  title:
-                    type: string
-                  description:
-                    type: string
-                  genre:
-                    type: string
-                  duration:
-                    type: integer
-                  release_date:
-                    type: string
-                    format: date
-                  image_url:
-                    type: string
+                $ref: '#/components/schemas/Movie'
         '404':
           description: Movie not found
     put:
@@ -635,51 +773,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                movie_name:
-                  type: string
-                movie_description:
-                  type: string
-                movie_genre:
-                  type: string
-                movie_duration:
-                  type: integer
-                movie_release_date:
-                  type: string
-                  format: date
-                movie_image_url:
-                  type: string
+              $ref: '#/components/schemas/MovieCreate'
       responses:
         '200':
           description: The movie details have been successfully updated.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  movie_id:
-                    type: integer
-                    description: ID of the updated movie.
-                  movie_name:
-                    type: string
-                    description: Updated name of the movie.
-                  movie_description:
-                    type: string
-                    description: Updated description of the movie.
-                  movie_genre:
-                    type: string
-                    description: Updated genre of the movie.
-                  movie_duration:
-                    type: integer
-                    description: Updated duration of the movie.
-                  movie_release_date:
-                    type: string
-                    format: date
-                    description: Updated release date of the movie.
-                  movie_image_url:
-                    type: string
-                    description: Updated URL of the movie's image.
+                $ref: '#/components/schemas/Movie'
         '401':
           description: Access token is missing or invalid
         '403':
@@ -701,18 +802,7 @@ paths:
           required: true
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    description: Whether the movie was deleted successfully or not
-                  message:
-                    type: string
-                    description: A message indicating the result of the operation
+          description: Deleted
         '400':
           description: Bad Request
         '401':
@@ -720,7 +810,7 @@ paths:
         '403':
           description: You have no permission
         '404':
-          description: Not Found
+          description: Movie not found
   /reviews:
     post:
       security:
@@ -731,47 +821,28 @@ paths:
         - Movie
       requestBody:
         content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                movie_id:
-                  type: string
-                user_id:
-                  type: integer
-                rating:
-                  type: integer
-                comment:
-                  type: string
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewCreate'
       responses:
         '200':
           description: The review is created successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  movie_id:
-                    type: integer
-                  rating:
-                    type: integer
-                  comment:
-                    type: string
+                $ref: '#/components/schemas/Review'
         '401':
           description: Access token is missing or invalid
         '403':
           description: You have no permission
+        '404':
+          description: Movie not found
     get:
       summary: Get all reviews
       description: Get a list of all reviews.
       tags:
         - Movie
       parameters:
-        - in: query
-          name: review_id
-          description: ID of the review
-          schema:
-            type: integer
         - in: query
           name: user_id
           description: ID of the user
@@ -794,7 +865,7 @@ paths:
       summary: Retrieve review details
       description: Retrieves the details for a review.
       tags:
-        - Review
+        - Movie
       parameters:
         - in: path
           name: reviewId
@@ -802,20 +873,13 @@ paths:
             type: integer
           required: true
           description: ID of the review to retrieve.
-
-
       responses:
         '200':
           description: The review details are successfully retrieved.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  review:
-                    type: string
+                $ref: '#/components/schemas/Review'
         '404':
           description: Review not found
     put:
@@ -836,7 +900,7 @@ paths:
           description: Request body containing details of the review to update
           required: true
           schema:
-            $ref: '#/components/schemas/Review'
+            $ref: '#/components/schemas/ReviewUpdate'
       responses:
         '200':
           description: Details of the updated review
@@ -863,18 +927,7 @@ paths:
           required: true
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    description: Whether the review was deleted successfully or not
-                  message:
-                    type: string
-                    description: A message indicating the result of the operation
+          description: Deleted
         '400':
           description: Bad Request
         '401':
@@ -882,7 +935,7 @@ paths:
         '403':
           description: You have no permission
         '404':
-          description: Not Found
+          description: Review not Found
   /genres:
     post:
       security:
@@ -942,7 +995,7 @@ paths:
       summary: Retrieve genre details
       description: Retrieves the details for a genre.
       tags:
-       - Genre
+       - Movie
       parameters:
         - in: path
           name: genreId
@@ -950,8 +1003,6 @@ paths:
             type: integer
           required: true
           description: ID of the genre to retrieve.
-
-
       responses:
         '200':
           description: The genre details are successfully retrieved.
@@ -1051,370 +1102,6 @@ paths:
           description: You have no permission
         '404':
           description: Not Found
-  /discounts:
-    post:
-      security:
-        - bearerAuth: []
-      summary: Create discount
-      description: Create a new discount.
-      tags:
-        - Booking
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: string
-                  description: The discount code.
-                percentage:
-                  type: number
-                  format: float
-                  minimum: 0
-                  maximum: 100
-                  description: The discount percentage.
-                expires_at:
-                  type: string
-                  format: date-time
-                  description: The date and time the discount expires.
-              required:
-                - code
-                - percentage
-      responses:
-        '200':
-          description: The discount is created successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  code:
-                    type: string
-                  percentage:
-                    type: number
-                  expires_at:
-                    type: string
-        '401':
-          description: Access token is missing or invalid
-        '403':
-          description: You have no permission
-    get:
-      summary: Get all discounts
-      description: Get a list of all discounts.
-      tags:
-        - Booking
-      parameters:
-      - in: query
-        name: start_date
-        schema:
-          type: integer
-        description: The Date discounts start being active
-      - in: query
-        name: end_date
-        schema:
-          type: integer
-        description: The Date discounts finish being active
-      - in: query
-        name: movie_id
-        schema:
-          type: integer
-        description: The ID of the movie to get discounts
-      responses:
-        '200':
-          description: List of all discounts is successfully retrieved.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    code:
-                      type: string
-                    percentage:
-                      type: number
-                    expires_at:
-                      type: string
-  /discounts/{discountId}:
-    get:
-      summary: Retrieve discount details
-      description: Retrieves the details for a discount.
-      tags:
-       - Discount
-      parameters:
-        - in: path
-          name: discountId
-          schema:
-            type: integer
-          required: true
-          description: ID of the discount to retrieve.
-
-
-      responses:
-        '200':
-          description: The discount details are successfully retrieved.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  title:
-                    type: string
-                  description:
-                    type: string
-                  discount:
-                    type: integer
-                  duration:
-                    type: integer
-                  release_date:
-                    type: string
-                    format: date
-                  image_url:
-                    type: string
-        '404':
-          description: Discount not found 
-
-    put:
-      security:
-        - bearerAuth: []
-      summary: Edit discount
-      tags:
-        - Booking
-      parameters:
-        - in: path
-          name: discountId
-          description: ID of the discount to edit
-          required: true
-          schema:
-            type: integer
-        - in: query
-          name: body
-          description: Request body containing details of the discount to update
-          required: true
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-                description: The discount code.
-              percentage:
-                type: number
-                format: float
-                minimum: 0
-                maximum: 100
-                description: The discount percentage.
-              expires_at:
-                type: string
-                format: date-time
-                description: The date and time the discount expires.
-      responses:
-        '200':
-          description: Details of the updated discount
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  code:
-                    type: string
-                  percentage:
-                    type: number
-                  expires_at:
-                    type: string
-        '401':
-          description: Access token is missing or invalid
-        '403':
-          description: You have no permission
-    delete:
-      security:
-        - bearerAuth: []
-      summary: Deletes an existing discount from the database
-      tags:
-        - Booking
-      parameters:
-        - in: path
-          name: discountId
-          schema:
-            type: integer
-          description: The ID of the discount to delete
-          required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    description: Whether the discount was deleted successfully or not
-                  message:
-                    type: string
-                    description: A message indicating the result of the operation
-        '400':
-          description: Bad Request
-        '401':
-          description: Access token is missing or invalid
-        '403':
-          description: You have no permission
-        '404':
-          description: Not Found
-  /seat:
-    post:
-      security:
-        - bearerAuth: []
-      summary: Create a seat
-      description: Create a new seat for a specific theater and movie showing.
-      tags:
-        - Booking
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                theater_id:
-                  type: integer
-                  description: ID of the theater where the seat is located
-                movie_showing_id:
-                  type: integer
-                  description: ID of the movie showing for which the seat is being created
-                row_number:
-                  type: integer
-                  description: The row number of the seat
-                seat_number:
-                  type: integer
-                  description: The number of the seat in the row
-      responses:
-        '201':
-          description: The seat is created successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Seat'
-        '401':
-          description: Access token is missing or invalid
-        '403':
-          description: You have no permission
-    get:
-      summary: Get all seats
-      description: Get a list of all seats.
-      tags:
-        - Booking
-      responses:
-        '200':
-          description: List of all seats is successfully retrieved.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Seat'
-  /seat/{seatId}:
-    get:
-      summary: Get a seat by ID
-      description: Get details of a specific seat by its ID.
-      tags:
-        - Booking
-      parameters:
-        - in: path
-          name: seatId
-          schema:
-            type: integer
-          description: The ID of the seat to retrieve
-          required: true
-      responses:
-        '200':
-          description: The details of the seat with the specified ID
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Seat'
-    put:
-      security:
-        - bearerAuth: []
-      summary: Update a seat
-      description: Update details of a specific seat.
-      tags:
-        - Booking
-      parameters:
-        - in: path
-          name: seatId
-          schema:
-            type: integer
-          description: The ID of the seat to update
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                theater_id:
-                  type: integer
-                  description: ID of the theater where the seat is located
-                movie_showing_id:
-                  type: integer
-                  description: ID of the movie showing for which the seat is being updated
-                row_number:
-                  type: integer
-                  description: The updated row number of the seat
-                seat_number:
-                  type: integer
-                  description: The updated number of the seat in the row
-      responses:
-        '200':
-          description: The updated details of the seat
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Seat'
-        '401':
-          description: Access token is missing or invalid
-        '403':
-          description: You have no permission
-    delete:
-      security:
-        - bearerAuth: []
-      summary: Delete a seat
-      description: Delete a specific seat by its ID.
-      tags:
-        - Booking
-      parameters:
-        - in: path
-          name: seatId
-          schema:
-            type: integer
-          description: The ID of the seat to delete
-          required: true
-      responses:
-        '200':
-          description: The seat is deleted successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    description: Whether the seat was deleted successfully or not
-                  message:
-                    type: string
-                    description: A message indicating the result of the operation
-        '401':
-          description: Access token is missing or invalid
-        '403':
-          description: You have no permission
 
 components:
   securitySchemes:
@@ -1439,6 +1126,22 @@ components:
         - row
         - number
         - hall_id
+
+    SeatCreate:
+      type: object
+      properties:
+        row:
+          type: string
+        number:
+          type: integer
+        hall_id:
+          type: integer
+      required:
+        - id
+        - row
+        - number
+        - hall_id
+
     UserProfile:
       type: object
       properties:
@@ -1496,8 +1199,6 @@ components:
       properties:
         name:
           type: string
-        capacity:
-          type: integer
       required:
         - name
         - capacity
@@ -1514,6 +1215,9 @@ components:
         start_time:
           type: string
           format: date-time
+        end_time:
+          type: string
+          format: date-time
       required:
         - session_id
         - movie_id
@@ -1525,10 +1229,14 @@ components:
       properties:
         hall_id:
           type: integer
-        row:
+        movie_id:
           type: integer
-        seat_number:
-          type: integer
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
       required:
         - hall_id
         - row
@@ -1579,15 +1287,106 @@ components:
         - session_id
         - user_id
         - seats
-        - 
-    
+
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the updated movie.
+        title:
+          type: string
+          description: Updated name of the movie.
+        description:
+          type: string
+          description: Updated description of the movie.
+        genre:
+          type: string
+          description: Updated genre of the movie.
+        duration:
+          type: integer
+          description: Updated duration of the movie.
+        release_date:
+          type: string
+          format: date
+          description: Updated release date of the movie.
+        image_url:
+          type: string
+          description: Updated URL of the movie's image.
+
+    MovieCreate:
+        type: object
+        properties:
+          title:
+            type: string
+          description:
+            type: string
+          genre:
+            type: string
+          duration:
+            type: integer
+          release_date:
+            type: string
+            format: date
+          image_url:
+            type: string
+
+    Discount:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        is_active:
+          type: boolean
+        discount_value:
+          type: integer
+        start_date:
+            type: string
+            format: date
+        end_date:
+            type: string
+            format: date
+
+    DiscountCreate:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+        discount_value:
+          type: integer
+        start_date:
+            type: string
+            format: date
+        end_date:
+            type: string
+            format: date
+
     Review:
       type: object
       properties:
         movie_id:
-          type: string
+          type: integer
         user_id:
           type: integer
+        rating:
+          type: integer
+        comment:
+          type: string
+    ReviewCreate:
+      type: object
+      properties:
+        movie_id:
+          type: integer
+        rating:
+          type: integer
+        comment:
+          type: string
+
+    ReviewUpdate:
+      type: object
+      properties:
         rating:
           type: integer
         comment:
