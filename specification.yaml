@@ -178,11 +178,68 @@ paths:
                     type: string
                   refresh_token:
                     type: string
+  /favourites:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Add movie to user favourites
+      tags:
+        - User
+      parameters:
+        - in: query
+          name: movie_id
+          schema:
+            type: integer
+          description: The id of the movie we want to add to our favorites.
+      responses:
+        '200':
+          description: The movie is added to favourites successfully
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
+        '404':
+          description: The movie with the specified ID does not exist.
+    get:
+      security:
+        - bearerAuth: []
+      summary: Get favourite user movies
+      description: Get a list of favourite movies.
+      tags:
+        - User
+      responses:
+        '200':
+          description: The user can see all favourite movies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+    delete:
+      security:
+        - bearerAuth: []
+      summary: Delete movie from user favourites
+      tags:
+        - User
+      parameters:
+        - in: query
+          name: movie_id
+          schema:
+            type: integer
+          description: The id of the movie we want to remove from our favorites.
+      responses:
+        '200':
+          description: The movie is removed from favourites successfully
+        '401':
+          description: Access token is missing or invalid
+        '403':
+          description: You have no permission
+        '404':
+          description: The movie with the specified ID does not exist.
+    
   
   
-  
-  
-
   /booking:
     post:
       security:
@@ -1172,18 +1229,7 @@ paths:
                 properties:
                   id:
                     type: integer
-                  title:
-                    type: string
-                  description:
-                    type: string
-                  genre:
-                    type: string
-                  duration:
-                    type: integer
-                  release_date:
-                    type: string
-                    format: date
-                  image_url:
+                  name:
                     type: string
         '404':
           description: Genre not found
