@@ -240,7 +240,7 @@ paths:
     
   
   
-  /booking:
+  /bookings:
     post:
       security:
         - bearerAuth: []
@@ -256,10 +256,12 @@ paths:
               properties:
                 session_id:
                   type: integer
-                seat_id:
-                  type: integer
                 user_id:
                   type: integer
+                seat_ids:
+                  type: array
+                  items: 
+                    type: integer
               
       responses:
         '200':
@@ -286,6 +288,8 @@ paths:
         '403':
           description: You have no permission
     get:
+      security:
+        - bearerAuth: []
       summary: Get all booking
       description: Get a list of all cinema booking.
       tags:
@@ -306,22 +310,17 @@ paths:
           schema:
             type: string
           description: Optional parameter to filter booking by start time.
-
-
-
       responses:
         '200':
           description: A list of all cinema booking is returned.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  sessions:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/MovieBooking'
-  /booking/{bookingId}:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovieBooking'
+                  
+  /bookings/{bookingId}:
     get:
       summary: Retrieve booking details
       description: Retrieves the details for a booking.
@@ -1450,22 +1449,12 @@ components:
     MovieBookingUpdate:
       type: object
       properties:
-        booking_id:
-          type: integer 
-        seats:
+        seat_ids:
           type: array
           items:
-            type: object
-            properties:
-              row:
-                type: integer
-              seat_number:
-                type: integer
-          minItems: 1
-          maxItems: 10
+            type: integer
       required:
-        - booking_id
-        - seats
+        - seat_ids
 
     MovieBooking:
       type: object
