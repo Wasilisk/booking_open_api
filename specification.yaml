@@ -1,4 +1,3 @@
-
 "openapi": "3.0.0"
 "info":
   "title": "System Operations API"
@@ -256,30 +255,7 @@
               "schema":
                 "type": "array"
                 "items":
-                  "type": "object"
-                  "properties":
-                    "id":
-                      "type": "integer"
-                      "description": "ID of the updated movie."
-                    "title":
-                      "type": "string"
-                      "description": "Updated name of the movie."
-                    "description":
-                      "type": "string"
-                      "description": "Updated description of the movie."
-                    "genre":
-                      "type": "string"
-                      "description": "Updated genre of the movie."
-                    "duration":
-                      "type": "integer"
-                      "description": "Updated duration of the movie."
-                    "release_date":
-                      "type": "string"
-                      "format": "date"
-                      "description": "Updated release date of the movie."
-                    "image_url":
-                      "type": "string"
-                      "description": "Updated URL of the movie's image."
+                  "type": "integer"
     "delete":
       "security":
         -
@@ -321,8 +297,6 @@
               "properties":
                 "session_id":
                   "type": "integer"
-                "user_id":
-                  "type": "integer"
                 "seat_ids":
                   "type": "array"
                   "items":
@@ -337,16 +311,19 @@
                 "properties":
                   "booking_id":
                     "type": "integer"
-                  "hall_id":
+                  "user_id":
                     "type": "integer"
-                  "seat_id":
+                  "session_id":
                     "type": "integer"
-                  "movie_id":
-                    "type": "integer"
-                  "start_time":
-                    "type": "string"
-                  "end_time":
-                    "type": "string"
+                  "seats":
+                    "type": "array"
+                    "items":
+                      "type": "object"
+                      "properties":
+                        "row":
+                          "type": "integer"
+                        "seat_number":
+                          "type": "integer"
         "401":
           "description": "Access token is missing or invalid"
         "403":
@@ -434,9 +411,9 @@
                 "properties":
                   "booking_id":
                     "type": "integer"
-                  "session_id":
-                    "type": "integer"
                   "user_id":
+                    "type": "integer"
+                  "session_id":
                     "type": "integer"
                   "seats":
                     "type": "array"
@@ -742,8 +719,6 @@
                   "type": "integer"
                 "start_time":
                   "type": "string"
-                "end_time":
-                  "type": "string"
       "responses":
         "200":
           "description": "The cinema session is created successfully."
@@ -758,9 +733,9 @@
                     "type": "integer"
                   "movie_id":
                     "type": "integer"
+                  "price":
+                    "type": "integer"
                   "start_time":
-                    "type": "string"
-                  "end_time":
                     "type": "string"
         "401":
           "description": "Access token is missing or invalid"
@@ -806,9 +781,8 @@
                         "start_time":
                           "type": "string"
                           "format": "date-time"
-                        "end_time":
-                          "type": "string"
-                          "format": "date-time"
+                        "price":
+                          "type": "integer"
                       "required":
                         - "session_id"
                         - "movie_id"
@@ -845,9 +819,8 @@
                   "start_time":
                     "type": "string"
                     "format": "date-time"
-                  "end_time":
-                    "type": "string"
-                    "format": "date-time"
+                  "price":
+                    "type": "integer"
                 "required":
                   - "session_id"
                   - "movie_id"
@@ -883,9 +856,8 @@
               "start_time":
                 "type": "string"
                 "format": "date-time"
-              "end_time":
-                "type": "string"
-                "format": "date-time"
+              "price":
+                "type": "integer"
             "required":
               - "hall_id"
               - "row"
@@ -907,9 +879,8 @@
                   "start_time":
                     "type": "string"
                     "format": "date-time"
-                  "end_time":
-                    "type": "string"
-                    "format": "date-time"
+                  "price":
+                    "type": "integer"
                 "required":
                   - "session_id"
                   - "movie_id"
@@ -1933,6 +1904,1999 @@
       "summary": "Deletes an existing genre from the database"
       "tags":
         - "Movie"
+      "parameters":
+        -
+          "in": "path"
+          "name": "genreId"
+          "schema":
+            "type": "integer"
+          "description": "The ID of the genre to delete"
+          "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "status":
+                    "type": "boolean"
+                    "description": "Whether the genre was deleted successfully or not"
+                  "message":
+                    "type": "string"
+                    "description": "A message indicating the result of the operation"
+        "400":
+          "description": "Bad Request"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "Not Found"
+  "/gateway/users/{userId}":
+    "get":
+      "summary": "Retrieve user profile [ROUTING]"
+      "description": "Retrieves the profile information for the logged-in user."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "userId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "ID of the user to retrieve."
+      "responses":
+        "200":
+          "description": "The user details are successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "user_id":
+                    "type": "integer"
+                  "user_name":
+                    "type": "string"
+                  "user_email":
+                    "type": "string"
+  "/gateway/users":
+    "post":
+      "summary": "Create account [ROUTING]"
+      "description": "Register a new user."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "name":
+                  "type": "string"
+                "email":
+                  "type": "string"
+                "password":
+                  "type": "string"
+      "responses":
+        "200":
+          "description": "The user profile is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "access_token":
+                    "type": "string"
+                  "refresh_token":
+                    "type": "string"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Update user profile info [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "body"
+          "description": "Request body containing details of the user profile to update"
+          "required": true
+          "schema":
+            "type": "object"
+            "properties":
+              "name":
+                "type": "string"
+              "email":
+                "type": "string"
+              "movie_notifications":
+                "type": "boolean"
+      "responses":
+        "200":
+          "description": "Details of the updated user profile"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "user_id":
+                    "type": "integer"
+                  "name":
+                    "type": "string"
+                  "email":
+                    "type": "string"
+                  "role":
+                    "type": "string"
+                  "movie_notifications":
+                    "type": "boolean"
+                "required":
+                  - "user_id"
+                  - "name"
+                  - "email"
+                  - "role"
+                  - "movie_notifications"
+  "/gateway/users/login":
+    "get":
+      "summary": "Log in to an existing account [ROUTING]"
+      "description": "Log in to an existing account with email and password."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "email"
+          "schema":
+            "type": "string"
+          "required": true
+          "description": "Email address of the user account to log in to."
+        -
+          "in": "query"
+          "name": "password"
+          "schema":
+            "type": "string"
+          "required": true
+          "description": "Password of the user account to log in to."
+      "responses":
+        "200":
+          "description": "The user logged in successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "access_token":
+                    "type": "string"
+                  "refresh_token":
+                    "type": "string"
+  "/gateway/users/password-recovery":
+    "post":
+      "summary": "Send password recovery confirmation email [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "email"
+          "schema":
+            "type": "string"
+          "required": true
+          "description": "Email of registered user."
+      "responses":
+        "200":
+          "description": "The email sent successfully."
+        "404":
+          "description": "User with such email not found."
+  "/gateway/users/password-recovery/{verificationCode}":
+    "put":
+      "summary": "Update user password [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "verificationCode"
+          "schema":
+            "type": "string"
+          "required": true
+          "description": "Unique password recovery verification code."
+        -
+          "in": "query"
+          "name": "body"
+          "description": "Request body containing details about the new password"
+          "required": true
+          "schema":
+            "type": "object"
+            "properties":
+              "new_password":
+                "type": "string"
+              "confirmation_password":
+                "type": "string"
+      "responses":
+        "200":
+          "description": "The user can continue to work with the system with new password."
+        "400":
+          "description": "Recovery request is invalid."
+  "/gateway/users/token/refresh":
+    "get":
+      "summary": "Update expired access token [ROUTING]"
+      "description": "Updates an expired access token."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "refresh_token"
+          "schema":
+            "type": "string"
+          "required": true
+          "description": "Refresh token to update access token."
+      "responses":
+        "200":
+          "description": "The user can continue to work with the system."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "access_token":
+                    "type": "string"
+                  "refresh_token":
+                    "type": "string"
+  "/gateway/favourites":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Add movie to user favourites [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "movie_id"
+          "schema":
+            "type": "integer"
+          "description": "The id of the movie we want to add to our favorites."
+      "responses":
+        "200":
+          "description": "The movie is added to favourites successfully"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "The movie with the specified ID does not exist."
+    "get":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Get favourite user movies [AGGREGATION]"
+      "description": "Get a list of favourite movies."
+      "tags":
+        - "Gateway"
+      "responses":
+        "200":
+          "description": "The user can see all favourite movies"
+          "content":
+            "application/json":
+              "schema":
+                "type": "array"
+                "items":
+                  "type": "object"
+                  "properties":
+                    "id":
+                      "type": "integer"
+                      "description": "ID of the updated movie."
+                    "title":
+                      "type": "string"
+                      "description": "Updated name of the movie."
+                    "description":
+                      "type": "string"
+                      "description": "Updated description of the movie."
+                    "genre":
+                      "type": "string"
+                      "description": "Updated genre of the movie."
+                    "duration":
+                      "type": "integer"
+                      "description": "Updated duration of the movie."
+                    "release_date":
+                      "type": "string"
+                      "format": "date"
+                      "description": "Updated release date of the movie."
+                    "image_url":
+                      "type": "string"
+                      "description": "Updated URL of the movie's image."
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Delete movie from user favourites [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "movieId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "The id of the movie we want to remove from our favorites."
+      "responses":
+        "200":
+          "description": "The movie is removed from favourites successfully"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "The movie with the specified ID does not exist."
+  "/gateway/bookings":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Create booking [AGGREGATION]"
+      "description": "Create a new cinema booking."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "session_id":
+                  "type": "integer"
+                "seat_ids":
+                  "type": "array"
+                  "items":
+                    "type": "integer"
+      "responses":
+        "200":
+          "description": "The cinema booking is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "booking_id":
+                    "type": "integer"
+                  "user_email":
+                    "type": "string"
+                  "hall_name":
+                    "type": "string"
+                  "movie_title":
+                    "type": "string"
+                  "movie_duration":
+                    "type": "integer"
+                  "start_time":
+                    "type": "string"
+                  "seats":
+                    "type": "array"
+                    "items":
+                      "type": "object"
+                      "properties":
+                        "row":
+                          "type": "integer"
+                        "seat_number":
+                          "type": "integer"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "get":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Get all booking [AGGREGATION]"
+      "description": "Get a list of all cinema booking."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "movie_id"
+          "schema":
+            "type": "integer"
+          "description": "Optional parameter to filter booking by movie."
+        -
+          "in": "query"
+          "name": "hall_id"
+          "schema":
+            "type": "integer"
+          "description": "Optional parameter to filter booking by cinema hall."
+        -
+          "in": "query"
+          "name": "start_time"
+          "schema":
+            "type": "string"
+          "description": "Optional parameter to filter booking by start time."
+      "responses":
+        "200":
+          "description": "A list of all cinema booking is returned."
+          "content":
+            "application/json":
+              "schema":
+                "type": "array"
+                "items":
+                  "type": "object"
+                  "properties":
+                    "booking_id":
+                      "type": "integer"
+                    "user_email":
+                      "type": "string"
+                    "hall_name":
+                      "type": "string"
+                    "movie_title":
+                      "type": "string"
+                    "movie_duration":
+                      "type": "integer"
+                    "start_time":
+                      "type": "string"
+                    "seats":
+                      "type": "array"
+                      "items":
+                        "type": "object"
+                        "properties":
+                          "row":
+                            "type": "integer"
+                          "seat_number":
+                            "type": "integer"
+                  "required":
+                    - "booking_id"
+                    - "session_id"
+                    - "user_id"
+                    - "seats"
+  "/gateway/bookings/{bookingId}":
+    "get":
+      "summary": "Retrieve booking details [AGGREGATION]"
+      "description": "Retrieves the details for a booking."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "bookingId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "ID of the booking to retrieve."
+      "responses":
+        "200":
+          "description": "The booking details are successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "booking_id":
+                    "type": "integer"
+                  "user_email":
+                    "type": "string"
+                  "hall_name":
+                    "type": "string"
+                  "movie_title":
+                    "type": "string"
+                  "movie_duration":
+                    "type": "integer"
+                  "start_time":
+                    "type": "string"
+                  "seats":
+                    "type": "array"
+                    "items":
+                      "type": "object"
+                      "properties":
+                        "row":
+                          "type": "integer"
+                        "seat_number":
+                          "type": "integer"
+                "required":
+                  - "booking_id"
+                  - "session_id"
+                  - "user_id"
+                  - "seats"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Edit chosen booking [AGGREGATION]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "bookingId"
+          "description": "ID of the booking to edit"
+          "required": true
+          "schema":
+            "type": "integer"
+        -
+          "in": "query"
+          "name": "body"
+          "description": "Request body containing details of the booking to update"
+          "required": true
+          "schema":
+            "type": "object"
+            "properties":
+              "seat_ids":
+                "type": "array"
+                "items":
+                  "type": "integer"
+            "required":
+              - "seat_ids"
+      "responses":
+        "200":
+          "description": "Details of the updated booking"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "booking_id":
+                    "type": "integer"
+                  "user_email":
+                    "type": "string"
+                  "hall_name":
+                    "type": "string"
+                  "movie_title":
+                    "type": "string"
+                  "movie_duration":
+                    "type": "integer"
+                  "start_time":
+                    "type": "string"
+                  "seats":
+                    "type": "array"
+                    "items":
+                      "type": "object"
+                      "properties":
+                        "row":
+                          "type": "integer"
+                        "seat_number":
+                          "type": "integer"
+                "required":
+                  - "booking_id"
+                  - "session_id"
+                  - "user_id"
+                  - "seats"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Delete chosen booking [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "bookingId"
+          "description": "ID of the booking to delete"
+          "required": true
+          "schema":
+            "type": "integer"
+      "responses":
+        "200":
+          "description": "Booking is deleted successfully"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+  "/gateway/halls":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Create hall [ROUTING]"
+      "description": "Create a new cinema hall."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "name":
+                  "type": "string"
+      "responses":
+        "200":
+          "description": "The hall is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "hall_id":
+                    "type": "integer"
+                  "name":
+                    "type": "string"
+                  "capacity":
+                    "type": "integer"
+                "required":
+                  - "hall_id"
+                  - "name"
+                  - "capacity"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "get":
+      "summary": "Get all halls [ROUTING]"
+      "description": "Get a list of all cinema halls."
+      "tags":
+        - "Gateway"
+      "responses":
+        "200":
+          "description": "A list of all cinema halls is returned."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "halls":
+                    "type": "array"
+                    "items":
+                      "type": "object"
+                      "properties":
+                        "hall_id":
+                          "type": "integer"
+                        "name":
+                          "type": "string"
+                        "capacity":
+                          "type": "integer"
+                      "required":
+                        - "hall_id"
+                        - "name"
+                        - "capacity"
+  "/gateway/halls/{hallId}":
+    "get":
+      "summary": "Retrieve hall details [ROUTING]"
+      "description": "Retrieves the details for a hall."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "hallId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "ID of the hall to retrieve."
+      "responses":
+        "200":
+          "description": "The hall details are successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "hall_id":
+                    "type": "integer"
+                  "name":
+                    "type": "string"
+                  "capacity":
+                    "type": "integer"
+                "required":
+                  - "hall_id"
+                  - "name"
+                  - "capacity"
+        "404":
+          "description": "Hall not found"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Update a chosen hall [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "hallId"
+          "description": "ID of the hall to update"
+          "required": true
+          "schema":
+            "type": "integer"
+        -
+          "in": "query"
+          "name": "body"
+          "description": "Request body containing updated details of the hall"
+          "required": true
+          "schema":
+            "type": "object"
+            "properties":
+              "name":
+                "type": "string"
+            "required":
+              - "name"
+              - "capacity"
+      "responses":
+        "200":
+          "description": "Details of the updated hall"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "hall_id":
+                    "type": "integer"
+                  "name":
+                    "type": "string"
+                  "capacity":
+                    "type": "integer"
+                "required":
+                  - "hall_id"
+                  - "name"
+                  - "capacity"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Delete chosen hall [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "hallId"
+          "description": "ID of the hall to delete"
+          "required": true
+          "schema":
+            "type": "integer"
+      "responses":
+        "204":
+          "description": "The hall has been successfully deleted"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "The requested resource was not found"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "message":
+                    "type": "string"
+  "/gateway/sessions":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Create session [AGGREGATION]"
+      "description": "Create a new cinema session."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "hall_id":
+                  "type": "integer"
+                "movie_id":
+                  "type": "integer"
+                "start_time":
+                  "type": "string"
+      "responses":
+        "200":
+          "description": "The cinema session is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "session_id":
+                    "type": "integer"
+                  "hall_name":
+                    "type": "string"
+                  "price":
+                    "type": "integer"
+                  "movie_title":
+                    "type": "string"
+                  "genre":
+                    "type": "string"
+                  "movie_duration":
+                    "type": "integer"
+                  "start_time":
+                    "type": "string"
+                  "image_url":
+                    "type": "string"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "get":
+      "summary": "Get all sessions [AGGREGATION]"
+      "description": "Get a list of all cinema sessions."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "movie_id"
+          "schema":
+            "type": "integer"
+          "description": "Optional parameter to filter sessions by movie."
+        -
+          "in": "query"
+          "name": "hall_id"
+          "schema":
+            "type": "integer"
+          "description": "Optional parameter to filter sessions by cinema hall."
+      "responses":
+        "200":
+          "description": "A list of all cinema sessions is returned."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "sessions":
+                    "type": "array"
+                    "items":
+                      "type": "object"
+                      "properties":
+                        "session_id":
+                          "type": "integer"
+                        "hall_name":
+                          "type": "string"
+                        "price":
+                          "type": "integer"
+                        "movie_title":
+                          "type": "string"
+                        "genre":
+                          "type": "string"
+                        "movie_duration":
+                          "type": "integer"
+                        "start_time":
+                          "type": "string"
+                        "image_url":
+                          "type": "string"
+                      "required":
+                        - "session_id"
+                        - "movie_id"
+                        - "hall_id"
+                        - "start_time"
+  "/gateway/sessions/{sessionId}":
+    "get":
+      "summary": "Retrieve session details [AGGREGATION]"
+      "description": "Retrieves the details for a movie session."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "sessionId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "ID of the session to retrieve."
+      "responses":
+        "200":
+          "description": "The session details are successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "session_id":
+                    "type": "integer"
+                  "hall_name":
+                    "type": "string"
+                  "price":
+                    "type": "integer"
+                  "movie_title":
+                    "type": "string"
+                  "genre":
+                    "type": "string"
+                  "movie_duration":
+                    "type": "integer"
+                  "start_time":
+                    "type": "string"
+                  "image_url":
+                    "type": "string"
+                "required":
+                  - "session_id"
+                  - "movie_id"
+                  - "hall_id"
+                  - "start_time"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Edit chosen session [AGGREGATION]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "sessionId"
+          "description": "ID of the session to edit"
+          "required": true
+          "schema":
+            "type": "integer"
+        -
+          "in": "query"
+          "name": "body"
+          "description": "Request body containing details of the session to update"
+          "required": true
+          "schema":
+            "type": "object"
+            "properties":
+              "hall_id":
+                "type": "integer"
+              "movie_id":
+                "type": "integer"
+              "start_time":
+                "type": "string"
+                "format": "date-time"
+              "end_time":
+                "type": "string"
+                "format": "date-time"
+            "required":
+              - "hall_id"
+              - "row"
+              - "seat_number"
+      "responses":
+        "200":
+          "description": "Details of the updated session"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "session_id":
+                    "type": "integer"
+                  "hall_name":
+                    "type": "string"
+                  "price":
+                    "type": "integer"
+                  "movie_title":
+                    "type": "string"
+                  "genre":
+                    "type": "string"
+                  "movie_duration":
+                    "type": "integer"
+                  "start_time":
+                    "type": "string"
+                  "image_url":
+                    "type": "string"
+                "required":
+                  - "session_id"
+                  - "movie_id"
+                  - "hall_id"
+                  - "start_time"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Delete chosen session [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "sessionId"
+          "description": "ID of the session to delete"
+          "required": true
+          "schema":
+            "type": "integer"
+      "responses":
+        "200":
+          "description": "Session is deleted successfully"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+  "/gateway/discounts":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Create discount [ROUTING]"
+      "description": "Create a new discount."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "is_active":
+                  "type": "boolean"
+                "discount_value":
+                  "type": "integer"
+                "start_date":
+                  "type": "string"
+                  "format": "date"
+                "end_date":
+                  "type": "string"
+                  "format": "date"
+      "responses":
+        "200":
+          "description": "The discount is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "code":
+                    "type": "string"
+                  "is_active":
+                    "type": "boolean"
+                  "discount_value":
+                    "type": "integer"
+                  "start_date":
+                    "type": "string"
+                    "format": "date"
+                  "end_date":
+                    "type": "string"
+                    "format": "date"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "get":
+      "summary": "Get all discounts [ROUTING]"
+      "description": "Get a list of all discounts."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "start_date"
+          "schema":
+            "type": "integer"
+          "description": "The Date discounts start being active"
+        -
+          "in": "query"
+          "name": "end_date"
+          "schema":
+            "type": "integer"
+          "description": "The Date discounts finish being active"
+        -
+          "in": "query"
+          "name": "is_active"
+          "schema":
+            "type": "boolean"
+          "description": "Discount status"
+      "responses":
+        "200":
+          "description": "List of all discounts is successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "array"
+                "items":
+                  "type": "object"
+                  "properties":
+                    "id":
+                      "type": "integer"
+                    "code":
+                      "type": "string"
+                    "is_active":
+                      "type": "boolean"
+                    "discount_value":
+                      "type": "integer"
+                    "start_date":
+                      "type": "string"
+                      "format": "date"
+                    "end_date":
+                      "type": "string"
+                      "format": "date"
+  "/gateway/discounts/{discountId}":
+    "get":
+      "summary": "Retrieve discount details [ROUTING]"
+      "description": "Retrieves the details for a discount."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "discountId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "ID of the discount to retrieve."
+      "responses":
+        "200":
+          "description": "The discount details are successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "code":
+                    "type": "string"
+                  "is_active":
+                    "type": "boolean"
+                  "discount_value":
+                    "type": "integer"
+                  "start_date":
+                    "type": "string"
+                    "format": "date"
+                  "end_date":
+                    "type": "string"
+                    "format": "date"
+        "404":
+          "description": "Discount not found"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Edit discount [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "discountId"
+          "description": "ID of the discount to edit"
+          "required": true
+          "schema":
+            "type": "integer"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "is_active":
+                  "type": "boolean"
+                "discount_value":
+                  "type": "integer"
+                "start_date":
+                  "type": "string"
+                  "format": "date"
+                "end_date":
+                  "type": "string"
+                  "format": "date"
+      "responses":
+        "200":
+          "description": "Details of the updated discount"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "code":
+                    "type": "string"
+                  "is_active":
+                    "type": "boolean"
+                  "discount_value":
+                    "type": "integer"
+                  "start_date":
+                    "type": "string"
+                    "format": "date"
+                  "end_date":
+                    "type": "string"
+                    "format": "date"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Deletes an existing discount from the database [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "discountId"
+          "schema":
+            "type": "integer"
+          "description": "The ID of the discount to delete"
+          "required": true
+      "responses":
+        "200":
+          "description": "Discount is deleted successfully"
+        "400":
+          "description": "Bad Request"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "Not Found"
+  "/gateway/seats":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Create a seat [ROUTING]"
+      "description": "Create a new seat for a specific theater and movie showing."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "row":
+                  "type": "string"
+                "number":
+                  "type": "integer"
+                "hall_id":
+                  "type": "integer"
+              "required":
+                - "id"
+                - "row"
+                - "number"
+                - "hall_id"
+      "responses":
+        "201":
+          "description": "The seat is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "row":
+                    "type": "string"
+                  "number":
+                    "type": "integer"
+                  "hall_id":
+                    "type": "integer"
+                "required":
+                  - "id"
+                  - "row"
+                  - "number"
+                  - "hall_id"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "get":
+      "summary": "Get all seats [ROUTING]"
+      "description": "Get a list of all seats."
+      "tags":
+        - "Gateway"
+      "responses":
+        "200":
+          "description": "List of all seats is successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "array"
+                "items":
+                  "type": "object"
+                  "properties":
+                    "id":
+                      "type": "integer"
+                    "row":
+                      "type": "string"
+                    "number":
+                      "type": "integer"
+                    "hall_id":
+                      "type": "integer"
+                  "required":
+                    - "id"
+                    - "row"
+                    - "number"
+                    - "hall_id"
+  "/gateway/seats/{seatId}":
+    "get":
+      "summary": "Get a seat by ID [ROUTING]"
+      "description": "Get details of a specific seat by its ID."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "seatId"
+          "schema":
+            "type": "integer"
+          "description": "The ID of the seat to retrieve"
+          "required": true
+      "responses":
+        "200":
+          "description": "The details of the seat with the specified ID"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "row":
+                    "type": "string"
+                  "number":
+                    "type": "integer"
+                  "hall_id":
+                    "type": "integer"
+                "required":
+                  - "id"
+                  - "row"
+                  - "number"
+                  - "hall_id"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Update a seat [ROUTING]"
+      "description": "Update details of a specific seat."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "seatId"
+          "schema":
+            "type": "integer"
+          "description": "The ID of the seat to update"
+          "required": true
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "row":
+                  "type": "string"
+                "number":
+                  "type": "integer"
+                "hall_id":
+                  "type": "integer"
+              "required":
+                - "id"
+                - "row"
+                - "number"
+                - "hall_id"
+      "responses":
+        "200":
+          "description": "The updated details of the seat"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "row":
+                    "type": "string"
+                  "number":
+                    "type": "integer"
+                  "hall_id":
+                    "type": "integer"
+                "required":
+                  - "id"
+                  - "row"
+                  - "number"
+                  - "hall_id"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Delete a seat [ROUTING]"
+      "description": "Delete a specific seat by its ID."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "seatId"
+          "schema":
+            "type": "integer"
+          "description": "The ID of the seat to delete"
+          "required": true
+      "responses":
+        "200":
+          "description": "The seat is deleted successfully"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+  "/gateway/movies":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Create movie [ROUTING]"
+      "description": "Create a new movie."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "title":
+                  "type": "string"
+                "description":
+                  "type": "string"
+                "genre":
+                  "type": "string"
+                "duration":
+                  "type": "integer"
+                "release_date":
+                  "type": "string"
+                  "format": "date"
+                "image_url":
+                  "type": "string"
+      "responses":
+        "200":
+          "description": "The movie is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "description": "ID of the updated movie."
+                  "title":
+                    "type": "string"
+                    "description": "Updated name of the movie."
+                  "description":
+                    "type": "string"
+                    "description": "Updated description of the movie."
+                  "genre":
+                    "type": "string"
+                    "description": "Updated genre of the movie."
+                  "duration":
+                    "type": "integer"
+                    "description": "Updated duration of the movie."
+                  "release_date":
+                    "type": "string"
+                    "format": "date"
+                    "description": "Updated release date of the movie."
+                  "image_url":
+                    "type": "string"
+                    "description": "Updated URL of the movie's image."
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "get":
+      "summary": "Get all movies [ROUTING]"
+      "description": "Get a list of all movies."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "genre_id"
+          "description": "ID of the genre"
+          "schema":
+            "type": "integer"
+        -
+          "in": "query"
+          "name": "name"
+          "description": "name"
+          "schema":
+            "type": "string"
+        -
+          "in": "query"
+          "name": "duration"
+          "description": "Max duration of movie"
+          "schema":
+            "type": "integer"
+      "responses":
+        "200":
+          "description": "List of all movies is successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "array"
+                "items":
+                  "type": "object"
+                  "properties":
+                    "id":
+                      "type": "integer"
+                      "description": "ID of the updated movie."
+                    "title":
+                      "type": "string"
+                      "description": "Updated name of the movie."
+                    "description":
+                      "type": "string"
+                      "description": "Updated description of the movie."
+                    "genre":
+                      "type": "string"
+                      "description": "Updated genre of the movie."
+                    "duration":
+                      "type": "integer"
+                      "description": "Updated duration of the movie."
+                    "release_date":
+                      "type": "string"
+                      "format": "date"
+                      "description": "Updated release date of the movie."
+                    "image_url":
+                      "type": "string"
+                      "description": "Updated URL of the movie's image."
+  "/gateway/movies/{movieId}":
+    "get":
+      "summary": "Retrieve movie details [ROUTING]"
+      "description": "Retrieves the details for a movie."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "movieId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "ID of the movie to retrieve."
+      "responses":
+        "200":
+          "description": "The movie details are successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "description": "ID of the updated movie."
+                  "title":
+                    "type": "string"
+                    "description": "Updated name of the movie."
+                  "description":
+                    "type": "string"
+                    "description": "Updated description of the movie."
+                  "genre":
+                    "type": "string"
+                    "description": "Updated genre of the movie."
+                  "duration":
+                    "type": "integer"
+                    "description": "Updated duration of the movie."
+                  "release_date":
+                    "type": "string"
+                    "format": "date"
+                    "description": "Updated release date of the movie."
+                  "image_url":
+                    "type": "string"
+                    "description": "Updated URL of the movie's image."
+        "404":
+          "description": "Movie not found"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Update movie [ROUTING]"
+      "description": "Updates an existing movie in the system."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "movieId"
+          "required": true
+          "schema":
+            "type": "integer"
+            "description": "ID of the movie to update."
+      "requestBody":
+        "description": "New details for the movie."
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "title":
+                  "type": "string"
+                "description":
+                  "type": "string"
+                "genre":
+                  "type": "string"
+                "duration":
+                  "type": "integer"
+                "release_date":
+                  "type": "string"
+                  "format": "date"
+                "image_url":
+                  "type": "string"
+      "responses":
+        "200":
+          "description": "The movie details have been successfully updated."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                    "description": "ID of the updated movie."
+                  "title":
+                    "type": "string"
+                    "description": "Updated name of the movie."
+                  "description":
+                    "type": "string"
+                    "description": "Updated description of the movie."
+                  "genre":
+                    "type": "string"
+                    "description": "Updated genre of the movie."
+                  "duration":
+                    "type": "integer"
+                    "description": "Updated duration of the movie."
+                  "release_date":
+                    "type": "string"
+                    "format": "date"
+                    "description": "Updated release date of the movie."
+                  "image_url":
+                    "type": "string"
+                    "description": "Updated URL of the movie's image."
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "The movie with the specified ID does not exist."
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Deletes an existing movie from the database [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "movieId"
+          "schema":
+            "type": "integer"
+          "description": "The ID of the movie to delete"
+          "required": true
+      "responses":
+        "200":
+          "description": "Deleted"
+        "400":
+          "description": "Bad Request"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "Movie not found"
+  "/gateway/reviews":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Create review  [AGGREGATION]"
+      "description": "Create a new review."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "movie_id":
+                  "type": "integer"
+                "rating":
+                  "type": "integer"
+                "comment":
+                  "type": "string"
+      "responses":
+        "200":
+          "description": "The review is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "movie_id":
+                    "type": "integer"
+                  "user_name":
+                    "type": "string"
+                  "rating":
+                    "type": "integer"
+                  "comment":
+                    "type": "string"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "Movie not found"
+    "get":
+      "summary": "Get all reviews [AGGREGATION]"
+      "description": "Get a list of all reviews."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "query"
+          "name": "user_id"
+          "description": "ID of the user"
+          "schema":
+            "type": "integer"
+        -
+          "in": "query"
+          "name": "movie_id"
+          "schema":
+            "type": "integer"
+          "description": "Optional parameter to filter reviews by movie."
+      "responses":
+        "200":
+          "description": "List of all reviews is successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "movie_id":
+                    "type": "integer"
+                  "user_name":
+                    "type": "string"
+                  "rating":
+                    "type": "integer"
+                  "comment":
+                    "type": "string"
+  "/gateway/reviews/{reviewId}":
+    "get":
+      "summary": "Retrieve review details [AGGREGATION]"
+      "description": "Retrieves the details for a review."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "reviewId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "ID of the review to retrieve."
+      "responses":
+        "200":
+          "description": "The review details are successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "movie_id":
+                    "type": "integer"
+                  "user_name":
+                    "type": "string"
+                  "rating":
+                    "type": "integer"
+                  "comment":
+                    "type": "string"
+        "404":
+          "description": "Review not found"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Edit user review [AGGREGATION]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "reviewId"
+          "description": "ID of the review to edit"
+          "required": true
+          "schema":
+            "type": "integer"
+        -
+          "in": "query"
+          "name": "body"
+          "description": "Request body containing details of the review to update"
+          "required": true
+          "schema":
+            "type": "object"
+            "properties":
+              "rating":
+                "type": "integer"
+              "comment":
+                "type": "string"
+      "responses":
+        "200":
+          "description": "Details of the updated review"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "movie_id":
+                    "type": "integer"
+                  "user_name":
+                    "type": "string"
+                  "rating":
+                    "type": "integer"
+                  "comment":
+                    "type": "string"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Deletes an existing user review from the database [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "reviewId"
+          "schema":
+            "type": "integer"
+          "description": "The ID of the user review to delete"
+          "required": true
+      "responses":
+        "200":
+          "description": "Deleted"
+        "400":
+          "description": "Bad Request"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+        "404":
+          "description": "Review not Found"
+  "/gateway/genres":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Create genre [ROUTING]"
+      "description": "Create a new genre."
+      "tags":
+        - "Gateway"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "name":
+                  "type": "string"
+                  "description": "The name of the genre."
+              "required":
+                - "name"
+      "responses":
+        "200":
+          "description": "The genre is created successfully."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "name":
+                    "type": "string"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "get":
+      "summary": "Get all genres [ROUTING]"
+      "description": "Get a list of all genres."
+      "tags":
+        - "Gateway"
+      "responses":
+        "200":
+          "description": "List of all genres is successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "array"
+                "items":
+                  "type": "object"
+                  "properties":
+                    "id":
+                      "type": "integer"
+                    "name":
+                      "type": "string"
+  "/gateway/genres/{genreId}":
+    "get":
+      "summary": "Retrieve genre details [ROUTING]"
+      "description": "Retrieves the details for a genre."
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "genreId"
+          "schema":
+            "type": "integer"
+          "required": true
+          "description": "ID of the genre to retrieve."
+      "responses":
+        "200":
+          "description": "The genre details are successfully retrieved."
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "name":
+                    "type": "string"
+        "404":
+          "description": "Genre not found"
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Edit genre [ROUTING]"
+      "tags":
+        - "Gateway"
+      "parameters":
+        -
+          "in": "path"
+          "name": "genreId"
+          "description": "ID of the genre to edit"
+          "required": true
+          "schema":
+            "type": "integer"
+        -
+          "in": "query"
+          "name": "body"
+          "description": "Request body containing details of the genre to update"
+          "required": true
+          "schema":
+            "type": "object"
+            "properties":
+              "name":
+                "type": "string"
+                "description": "The name of the genre."
+      "responses":
+        "200":
+          "description": "Details of the updated genre"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "id":
+                    "type": "integer"
+                  "name":
+                    "type": "string"
+        "401":
+          "description": "Access token is missing or invalid"
+        "403":
+          "description": "You have no permission"
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "summary": "Deletes an existing genre from the database [ROUTING]"
+      "tags":
+        - "Gateway"
       "parameters":
         -
           "in": "path"
